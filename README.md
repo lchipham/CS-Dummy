@@ -1,0 +1,4 @@
+- 👋 Hi, I’m @lchipham
+- 👀 I’m interested in data analytics, economics and finance.
+- 🌱 I’m currently learning Python- Intro to CS
+- 📫 How to reach me: cpham2@conncoll.edu
