@@ -1,4 +1,6 @@
 #Blackjack Program
+#Download: buttonClass.py, PlayingCard.py, Deck_CS.py, cardImageTest.py 
+#Go to https://bit.ly/3xqtwEd to download the cards file (must-do)
 from graphics import*
 from buttonClass import*
 from PlayingCard import*
