@@ -1,88 +1,16 @@
-#This is an object-oriented Black Jack program with 3 additional classes:
+#This is an object-oriented Black Jack program with 4 additional classes:
 # + buttonClass
 # + PlayingCard
-# + Deck_CS
+# + Deck
+# + BlackjackClass
 
 from graphics import*
 from buttonClass import*
 from PlayingCard import*
-from Deck_CS import*
+from Deck import*
 from random import*
+from BlackjackClass import*
 
-class BlackJack:
-    '''A class to generate cards and dealer plays to play a game of Blackjack'''
-    
-    def __init__(self, dealerHand = [], playerHand = []):    #constructor to initialize instance variables
-        '''_init__(self, dHand=[], pHand=[])
-        constructor that initializes instance variables, it also gives the playingDeck an initial shuffle
-        dealerHand: a list of PlayingCard objects representing the dealer's hand
-        playerHand: a list of PlayingCard objects representing the player's hand
-        playingDeck: a Deck object representing the deck of cards the game is being played with'''
-        self.dHand = dealerHand
-        self.pHand = playerHand                              #instance variables
-        self.playingDeck = Deck()
-        self.playingDeck.shuffle()                           #constructor to shuffle cards
-
-    def initDeal(self, gwin, xposD1, xposD2, yposD1, yposD2, xposP1, xposP2, yposP1, yposP2):  #20,40,45,45,20,40,65,65
-        '''initDeal(self,gwin,xposD,yposD,xposP,yposP):
-        deals out initial cards, 2 per player and displays dealer and player hands on
-        graphical win xposD and yposD give initial position for dealer cards, xposP and yposP are analogous'''
-        facedown_dCardVal = self.playingDeck.dealCard()
-        self.dHand.append(facedown_dCardVal)
-        facedown_dCardImage = Image(Point(xposD1,yposD1), "playingcards/b1fv.gif")  
-        facedown_dCardImage.draw(gwin)                  #generates first facedown dealer card
-    
-        init_pCard = self.playingDeck.dealCard()   #generates first player card
-        self.pHand.append(init_pCard)
-        image_pCard = Image(Point(xposP1,yposP1), "playingcards/" + init_pCard.getSuit() + str(init_pCard.getRank()) + ".gif")
-        image_pCard.draw(gwin)
-
-        init_dCard = self.playingDeck.dealCard()   #generates second dealer card
-        self.dHand.append(init_dCard)
-        image_dCard = Image(Point(xposD2,yposD2), "playingcards/" + init_dCard.getSuit() + str(init_dCard.getRank()) + ".gif")
-        image_dCard.draw(gwin)
-    
-        init_pCard = self.playingDeck.dealCard()   #generates second player card
-        self.pHand.append(init_pCard)
-        image_pCard = Image(Point(xposP2,yposP2), "playingcards/" + init_pCard.getSuit() + str(init_pCard.getRank()) + ".gif")
-        image_pCard.draw(gwin)
-
-        return facedown_dCardVal
-
-    def hit(self, gwin, xPos, yPos):               #adds a new card to the player's hand
-        '''hit(self, gwin, xPos, yPos) adds a new card to the player's hand and places it at xPos, yPos'''
-        addedCards = self.playingDeck.dealCard()   #new player card dealt
-        image_addedCards = Image(Point(xPos, yPos), "playingcards/" + addedCards.suit + str(addedCards.rank) + ".gif") 
-        image_addedCards.draw(gwin)                #card's value is retrieved and card is drawn from playingcard folder
-        self.pHand.append(addedCards)
-
-    def evaluateHand(self, hand):                  #evaluates hand by implementing BlackJack rules for card vals
-        '''evaluateHand(self, hand)totals the cards in the hand that is passed in and returns total
-           (ace counts as 11 if doing so allows total to stay under 21)'''
-        tot = 0                                    
-        hasAce = False                              #Boolean condition set before loop
-        for card in hand:
-            cardVal = card.getValue()
-            if card.getValue() == 1:                #if Ace takes 1 as its value
-                hasAce = True
-            tot = tot + cardVal
-        if hasAce and tot + 10 <= 21:               #if Ace takes 11 as its value and the total card value doesn't go above 21
-            tot = tot + 10
-        return tot
-
-
-    def dealerPlays(self, gwin, xPos, yPos):
-        ''' dealearPlays(self, gwin, xPos, yPos) dealer deals cards to herself, stopping when hitting "soft 17"'''
-        dTot = self.evaluateHand(self.dHand)        #the value of 2 auto-generated dealer cards 
-        while dTot < 17:                            
-            dCard = self.playingDeck.dealCard()     #new dealer card dealt
-            image_dCard = Image(Point(xPos,yPos), "playingcards/" + dCard.getSuit() + str(dCard.getRank()) + ".gif") #deals if player tot is <= 17, dealer plays
-            image_dCard.draw(gwin)
-            self.dHand.append(dCard)                #new dealer card appended into existing list of dealer cards
-            dTot = dTot + dCard.getValue()
-            
-        return dTot
- 
 def gameSetup(gwin):
     ''' GUI interface with title, one theme image and 3 buttons
         allowing users to play, view the rules and quit'''
@@ -94,7 +22,7 @@ def gameSetup(gwin):
     title.draw(gwin)
     image1 = Image(Point(50,50), "intro.gif")       #theme image using Image object 
     image1.draw(gwin)
-    playButton = Button(gwin, "Play", Point(35,10), 5, 10)      #Buttons created usising Button class
+    playButton = Button(gwin, "Play", Point(35,10), 5, 10)      #Buttons created using Button class
     guideButton = Button(gwin, "Rules", Point(50,10), 5, 10)
     quitButton = Button(gwin, "Quit", Point(65,10), 5, 10)
     closeWin = True                                 #Boolean condition set before while loop
@@ -102,9 +30,9 @@ def gameSetup(gwin):
         pt = gwin.getMouse()
         if playButton.isClicked(pt):                #user clicks play button to play for 1st and consecutive times
             playAgain = playGame(gwin)
-            break
-        elif quitButton.isClicked(pt):              #user clicks quit button to stop playing and close window       
-            playAgain = False
+            break                                   #while loop breaks if playButton is clicked and game is restarted
+        elif quitButton.isClicked(pt):              #user clicks quit button to stop playing and quit the game       
+            playAgain = False                       #both Boolean conditions are set to False and game is quit
             closeWin = False
         elif guideButton.isClicked(pt):             #user clicks guideButton to open the pop-up Rules box
             win2 = GraphWin("Rules", 500, 500)      #new window setup 
@@ -119,22 +47,25 @@ def gameSetup(gwin):
             money2 = Image(Point(83,50), "money.gif")
             money2.draw(win2)
 
-            progress = Text(Point(50,80), "A card is dealt, face up, to player and then one to the dealer. \nThe dealer's card is face down and called the 'hole' card. \nA second card is then dealt, again face up, to each player.\nEach player decides whether to draw further cards.\nAfter all players have completed their hands, the Dealer \nproceeds to draw cards to complete the Dealer's hand.")
+            progress = Text(Point(50,82), "Blackjack\n Goal: Beat the dealer's hand without going over 21\n \
+        Card values:\n ACE: 1 or 11 pts\n  FACE CARDS: 10 pts\n CARDS 2-10: pts equal to face value\n \
+        Rules:\n At the start of the game, the player is dealt two cards.\n They can choose to hit (get another card) or stand (keep hand)")   #rules
             progress.setFace("times roman")
             progress.setSize(12)
             progress.draw(win2)                     #Instructions drawn using Text object
             
-            winIf = Text(Point(50,25),"You win if:\n1. Your total is higher than the Dealer's total\n2. The Dealer's total goes over 21 or 'busts'.")
+            winIf = Text(Point(50,25),"You win if:\n 1.) Your hand is higher than the dealer's hand and less than 21\n \
+        2.)The dealer's total goes over 21 or (busts)")
             winIf.setFace("times roman")
             winIf.setSize(12)
             winIf.draw(win2)
-        else:                                       #user clicks outside of the 3 play, rules and quit button
+        else:                                       #if user clicks outside of the 3 play, rules and quit button
             cautionText = Text(Point(50,4), "You didn't click any button. Please try again.")  
             cautionText.setFill("white")
-            cautionText.draw(gwin)                  #a text is drawn to notify user and prompts another try
-    gwin.close()
+            cautionText.draw(gwin)                  #text is drawn to notify user that they didn't click a button; prompts them for another try
+    gwin.close()                                    #outside while closeWin = True now, so window is finally closed
 
-    return playAgain
+    return playAgain                                #returns playAgain so it can be called in main to "play again"
 
 def playGame(gwin):
     ''' After user clicks the play button, they are led to an interface with pre-setup cards,
@@ -181,18 +112,18 @@ def playGame(gwin):
     playAgain = False                               #Boolean condition to play again set before while loop
     while not exitButton.isClicked(pt):             #as long as exit button is not clicked, user can play one full round
         gameConditions(gwin, pt, standButton, hitButton, restartButton, blackjackGame, facedown_dCardVal, xP, xD, yP, yD, pscoreNum, dscoreNum, pTot)
-        pt = gwin.getMouse()                            
+        pt = gwin.getMouse()                        #line above calls gameConditons so that game rules and outcomes can be executed/interpreted                        
         if restartButton.isClicked(pt):             #user clicks restart button -> return to home screen
-            cover = Rectangle(Point(0,0), Point(100,100))#a Rectangle object is drawn to cover the cards,image and buttons from previous round
+            cover = Rectangle(Point(0,0), Point(100,100)) #a Rectangle object is drawn to cover the cards,image and buttons from previous round
             cover.setFill(color_rgb(255,153,153))
             cover.setOutline(color_rgb(255,153,153))
             cover.draw(gwin)
             blackjackGame.pHand.clear()             #every dealer card from previous round is deleted from list
             blackjackGame.dHand.clear()             #every dealer card from previous round is deleted from list
                                                     #so that in the next round, the count boxes are updated with new card values
-            gameSetup(gwin)                         #the same game setup appears again
-            playAgain = True                        #and user can play just like the previous round
-            break
+            gameSetup(gwin)                         #the same game setup appears again when gameSetup() is called
+            playAgain = True                        #and user can play just like the previous round when Boolean playAgain is set to True again
+            break                                   #break allows us to break out of while loop go to gameSetup window to play again
     return playAgain
 
 def gameConditions(gwin, pt, standButton, hitButton, restartButton, blackjackGame, facedown_dCardVal, xP, xD, yP, yD, pscoreNum, dscoreNum, pTot):
@@ -200,10 +131,10 @@ def gameConditions(gwin, pt, standButton, hitButton, restartButton, blackjackGam
     
     while not standButton.isClicked(pt):            #as long as the stand button is not clicked
         if hitButton.isClicked(pt) and blackjackGame.evaluateHand(blackjackGame.pHand) <= 21: #if user clicks hit and the value of 2 auto-generated player cards does not exceed 21
-            blackjackGame.hit(gwin,xP,yP)           #a new plater card drawn using hit function
+            blackjackGame.hit(gwin,xP,yP)           #a new player card is drawn using hit function
             pTot = blackjackGame.evaluateHand(blackjackGame.pHand)  #player card value is updated with the new player card
             pscoreNum.setText(pTot)                 #player card value count is set to the variable pTot assigned above
-            xP = xP + 20                            #for every new player card drawn, its position value is shifted to the right by 20
+            xP = xP + 20                            #for every new player card drawn, its position value is incremented to the right by 20
         pt = gwin.getMouse()
     hitButton.deactivate()                          #as soon as user clicks stand button, hit button becomes deactivated
              
@@ -231,21 +162,21 @@ def gameConditions(gwin, pt, standButton, hitButton, restartButton, blackjackGam
             loserP.setFace("times roman")
             loserP.draw(gwin)
              
-        if dTot > 21:                               #if dealer card value exceeds 21 -> dealer busts
+        if dTot > 21:                                  #if dealer card value exceeds 21 -> dealer busts
             loserD = (Text(Point(50,27), "DEALER BUSTED, PLAYER WINS"))
             loserD.setFill("white")
             loserD.setSize(16)
             loserD.setFace("times roman")
             loserD.draw(gwin)
 
-        if dTot > pTot and dTot <= 21:              #if dealer card value does not exceed 21 is higher than that of player -> dealer wins
+        if dTot > pTot and dTot <= 21:                 #if dealer card value does not exceed 21 is higher than that of player -> dealer wins
             loserD = (Text(Point(50,27), "DEALER WINS!"))
             loserD.setFill("white")
             loserD.setSize(16)
             loserD.setFace("times roman")
             loserD.draw(gwin)
             
-        if pTot > dTot and pTot <= 21:              #if player card value does not exceed 21 is higher than that of dealer -> player wins
+        if pTot > dTot and pTot <= 21:                 #if player card value does not exceed 21 is higher than that of dealer -> player wins
             loserD = (Text(Point(50,27), "PLAYER WINS!"))
             loserD.setFill("white")
             loserD.setSize(16)
@@ -259,7 +190,7 @@ def gameConditions(gwin, pt, standButton, hitButton, restartButton, blackjackGam
             loserD.setFace("times roman")
             loserD.draw(gwin)    
     standButton.deactivate()                        #as soons as user clicks stand button and finishes playing, stand button is deactivated
-    restartButton.activate()                        #after user finished playing 1 round, restart button is activated
+    restartButton.activate()                        #after user finished playing a round, restart button is activated if they want to play again
            
 def main():
     ''' Put the pieces into place, run program in 3 steps'''
@@ -267,7 +198,7 @@ def main():
     win.setCoords(0, 0, 100, 100)
     win.setBackground(color_rgb(255,153,153))
     playAgain = gameSetup(win)                      #game set up allows blackjack game to run with additional functions
-    if playAgain:                                   #repeat the steps executed in main function if the user plays again
+    if playAgain:                                   #repeats the steps executed in main function if the user plays again
         main()
     
 if __name__=="__main__":
